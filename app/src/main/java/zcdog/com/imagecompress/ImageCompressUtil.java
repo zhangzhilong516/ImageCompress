@@ -17,12 +17,14 @@ import java.io.IOException;
  * @des:
  */
 public class ImageCompressUtil {
+
+
     public static void compress(final String filePath, final CompressListener listener) {
         AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    listener.onSuccess(compress(filePath));
+                    listener.onSuccess(compress(filePath,filePath));
                 } catch (IOException e) {
                     listener.onError(e);
                 }
@@ -30,7 +32,20 @@ public class ImageCompressUtil {
         });
     }
 
-    public static File compress(String filePath) throws IOException {
+    public static void compress(final String filePath, final String desPath, final CompressListener listener) {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    listener.onSuccess(compress(filePath,desPath));
+                } catch (IOException e) {
+                    listener.onError(e);
+                }
+            }
+        });
+    }
+
+    public static File compress(String filePath,String desPath) throws IOException {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true; //为True时，不会真正加载图片，而是得到图片的宽高信息
         options.inSampleSize = 1;
@@ -49,7 +64,7 @@ public class ImageCompressUtil {
 
         tagBitmap.compress(isJPG(filePath) ? Bitmap.CompressFormat.JPEG : Bitmap.CompressFormat.PNG, 60, outputStream);
 
-        FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+        FileOutputStream fileOutputStream = new FileOutputStream(desPath);
         fileOutputStream.write(outputStream.toByteArray());
         fileOutputStream.flush();
         fileOutputStream.close();
@@ -127,6 +142,7 @@ public class ImageCompressUtil {
         }
         return degree;
     }
+
 
     interface CompressListener {
         void onSuccess(File file);
